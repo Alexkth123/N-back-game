@@ -1,0 +1,4 @@
+/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/.cxx/Debug/3e01z3q1/armeabi-v7a/CMakeFiles/nback_cimpl.dir
+/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/.cxx/Debug/3e01z3q1/armeabi-v7a/CMakeFiles/JniBridge.dir
+/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/.cxx/Debug/3e01z3q1/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/.cxx/Debug/3e01z3q1/armeabi-v7a/CMakeFiles/rebuild_cache.dir

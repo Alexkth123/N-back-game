@@ -1,0 +1,5 @@
+# ninja log v5
+0	36	1699282411639727633	CMakeFiles/nback_cimpl.dir/nback.c.o	e50f83994ca714c4
+0	37	1699282411640353434	CMakeFiles/JniBridge.dir/JniBridge.c.o	75a995679a41442a
+36	70	1699282411673180273	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/armeabi-v7a/libnback_cimpl.so	f2b86d82106e803a
+70	104	1699282411706896649	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/armeabi-v7a/libJniBridge.so	20f95cc8251889cc
