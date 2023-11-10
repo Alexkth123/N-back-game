@@ -3,3 +3,8 @@
 0	53	1699282411231157612	CMakeFiles/JniBridge.dir/JniBridge.c.o	65dc17689e70cf21
 53	85	1699282411263087373	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/arm64-v8a/libnback_cimpl.so	86c8ee4b66b8fb85
 85	117	1699282411294492078	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/arm64-v8a/libJniBridge.so	5fdb2b6886536e5a
+0	10	0	clean	80e0ab3a1ddaf9c9
+3	449	1699610317579552981	CMakeFiles/JniBridge.dir/JniBridge.c.o	65dc17689e70cf21
+2	449	1699610317579503440	CMakeFiles/nback_cimpl.dir/nback.c.o	4e6f59cf341d17a4
+449	622	1699610317753644593	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/arm64-v8a/libnback_cimpl.so	86c8ee4b66b8fb85
+622	654	1699610317784786495	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/arm64-v8a/libJniBridge.so	5fdb2b6886536e5a

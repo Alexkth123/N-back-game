@@ -48,9 +48,10 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
  */
 
 @Composable
-fun HomeScreen(
+fun PlayScreen(
     vm: GameViewModel
 ) {
+
     val highscore by vm.highscore.collectAsState()  // Highscore is its own StateFlow
     val gameState by vm.gameState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -77,7 +78,9 @@ fun HomeScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(
-                    Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp), // Add padding as needed
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (gameState.eventValue != -1) {
@@ -87,14 +90,21 @@ fun HomeScreen(
                             textAlign = TextAlign.Center
                         )
                     }
-                    Button(onClick = vm::startGame) {
-                        //Text(text = "Generate eventValues")
-                        Text(text = "Start Game")
-
-
-
+                    // Create 3x3 grid of buttons
+                    for (i in 1..3) { // Loop for each row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            for (j in 1..3) { // Loop for each button in a row
+                                Button(onClick = { /* Your click handling logic here */ }) {
+                                    Text(text = "Button $i$j") // Display button number
+                                }
+                            }
+                        }
                     }
                 }
+
             }
             Text(
                 modifier = Modifier.padding(16.dp),
@@ -146,13 +156,15 @@ fun HomeScreen(
             }
         }
     }
+
+
 }
 
 @Preview
 @Composable
-fun HomeScreenPreview() {
+fun PlayScreenPreview() {
     // Since I am injecting a VM into my homescreen that depends on Application context, the preview doesn't work.
     Surface(){
-        HomeScreen(FakeVM())
+        PlayScreen(FakeVM())
     }
 }
