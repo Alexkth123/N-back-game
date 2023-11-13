@@ -192,12 +192,13 @@ fun PlayScreen(vm: GameViewModel) {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
+                                .bounceClick()
                                 .weight(1f)
                                 .padding(30.dp)
                                 .aspectRatio(1f) // This makes the Box a square
                                 .shadow(
                                     4.dp,
-                                    RoundedCornerShape(10.dp)
+                                    RoundedCornerShape(30.dp)
                                 ) // This adds a shadow with rounded corners
                                 .background(
                                     Color(0xFF007AFF),
@@ -227,10 +228,11 @@ fun PlayScreen(vm: GameViewModel) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
+                            .bounceClick()
                             .weight(1f)
                             .padding(30.dp)
                             .aspectRatio(1f) // This makes the Box a square
-                            .shadow(4.dp, RoundedCornerShape(10.dp)) // This adds a shadow with rounded corners
+                            .shadow(4.dp, RoundedCornerShape(30.dp)) // This adds a shadow with rounded corners
                             .background(Color(0xFF007AFF), RoundedCornerShape(30.dp)
                             ) // This sets the rounded corner background to white
                     ) {
@@ -267,7 +269,7 @@ fun PlayScreen(vm: GameViewModel) {
 enum class ButtonState { Pressed, Idle }
 fun Modifier.bounceClick() = composed {
     var buttonState by remember { mutableStateOf(ButtonState.Idle) }
-    val scale by animateFloatAsState(if (buttonState == ButtonState.Pressed) 0.70f else 1f)
+    val scale by animateFloatAsState(if (buttonState == ButtonState.Pressed) 0.85f else 1f)
 
     this
         .graphicsLayer {

@@ -40,6 +40,7 @@ interface GameViewModel {
     val highscore: StateFlow<Int>
     val nBack: Int
     val btnState: StateFlow<Boolean>
+    val showValue: StateFlow<Int>
 
     fun setGameType(gameType: GameType)
     fun startGame()
@@ -68,6 +69,10 @@ class GameVM(
     override val btnState: StateFlow<Boolean>
         get() = _btnState
 
+    private val _showValue = MutableStateFlow(0)
+    override val showValue: StateFlow<Int>
+        get() = _showValue
+
     // nBack is currently hardcoded
     override val nBack: Int = 2
 
@@ -88,7 +93,7 @@ class GameVM(
 
 
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
-        events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
+        events = nBackHelper.generateNBackString(20, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
         Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
 
         job = viewModelScope.launch {
@@ -106,17 +111,16 @@ class GameVM(
 
         //for checking the condition correctly you need to get the current event index displaying??
         // make a function that returns the index
-        if (_btnState.value and (events.get(int)==events.get(int))){
-            _score.value.plus(1)
+        if (_btnState.value and (events.get(showValue.value).equals(events.get(showValue.value-1)) )){ // and (events.get(int).equals(events.get(int)) )
+            _score.value +=1
             Log.d("GameVM", "New score"+_score.value)
         }
     }
 
     override fun btn_press() {
         _btnState.compareAndSet(false,true)
-        print("Button state"+_btnState.value)
         Log.d("GameVM", "Button pressed "+_btnState.value)
-        //checkMatch()
+        checkMatch(1)
         _btnState.compareAndSet(true,false)
 
     }
@@ -129,9 +133,10 @@ class GameVM(
     private suspend fun runVisualGame(events: Array<Int>){
         // Todo: Replace this code for actual game code
         for (value in events) {
+            _showValue.value=value
             _gameState.value = _gameState.value.copy(eventValue = value)
             Log.d("GameVM.runVisualGame loop", "Check match")
-            checkMatch(value)
+            //checkMatch(value)
 
             delay(eventInterval)
         }
@@ -184,6 +189,8 @@ class FakeVM: GameViewModel{
     override val nBack: Int
         get() = 2
     override val btnState: StateFlow<Boolean>
+        get() = TODO("Not yet implemented")
+    override val showValue: StateFlow<Int>
         get() = TODO("Not yet implemented")
 
     override fun setGameType(gameType: GameType) {
