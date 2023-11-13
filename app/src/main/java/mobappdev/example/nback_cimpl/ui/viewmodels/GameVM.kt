@@ -39,11 +39,13 @@ interface GameViewModel {
     val score: StateFlow<Int>
     val highscore: StateFlow<Int>
     val nBack: Int
+    val btnState: StateFlow<Boolean>
 
     fun setGameType(gameType: GameType)
     fun startGame()
 
-    fun checkMatch()
+    fun checkMatch(int: Int)
+    fun btn_press()
 }
 
 class GameVM(
@@ -53,6 +55,7 @@ class GameVM(
     override val gameState: StateFlow<GameState>
         get() = _gameState.asStateFlow()
 
+
     private val _score = MutableStateFlow(0)
     override val score: StateFlow<Int>
         get() = _score
@@ -61,11 +64,15 @@ class GameVM(
     override val highscore: StateFlow<Int>
         get() = _highscore
 
+    private val _btnState = MutableStateFlow(false)
+    override val btnState: StateFlow<Boolean>
+        get() = _btnState
+
     // nBack is currently hardcoded
     override val nBack: Int = 2
 
     private var job: Job? = null  // coroutine job for the game event
-    private val eventInterval: Long = 2000L  // 2000 ms (2s)
+    private val eventInterval: Long = 3000L  // 2000 ms (2s)
 
     private val nBackHelper = NBackHelper()  // Helper that generate the event array
     private var events = emptyArray<Int>()  // Array with all events
@@ -77,7 +84,7 @@ class GameVM(
 
     override fun startGame() {
         job?.cancel()  // Cancel any existing game loop
-        print("game starts now")
+        Log.d("GameVM", "Game starts")
 
 
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
@@ -95,12 +102,26 @@ class GameVM(
         }
     }
 
-    override fun checkMatch() {
-        /**
-         * Todo: This function should check if there is a match when the user presses a match button
-         * Make sure the user can only register a match once for each event.
-         */
+    override fun checkMatch(int: Int) {
+
+        //for checking the condition correctly you need to get the current event index displaying??
+        // make a function that returns the index
+        if (_btnState.value and (events.get(int)==events.get(int))){
+            _score.value.plus(1)
+            Log.d("GameVM", "New score"+_score.value)
+        }
     }
+
+    override fun btn_press() {
+        _btnState.compareAndSet(false,true)
+        print("Button state"+_btnState.value)
+        Log.d("GameVM", "Button pressed "+_btnState.value)
+        //checkMatch()
+        _btnState.compareAndSet(true,false)
+
+    }
+
+
     private fun runAudioGame() {
         // Todo: Make work for Basic grade
     }
@@ -109,6 +130,9 @@ class GameVM(
         // Todo: Replace this code for actual game code
         for (value in events) {
             _gameState.value = _gameState.value.copy(eventValue = value)
+            Log.d("GameVM.runVisualGame loop", "Check match")
+            checkMatch(value)
+
             delay(eventInterval)
         }
 
@@ -159,6 +183,8 @@ class FakeVM: GameViewModel{
         get() = MutableStateFlow(42).asStateFlow()
     override val nBack: Int
         get() = 2
+    override val btnState: StateFlow<Boolean>
+        get() = TODO("Not yet implemented")
 
     override fun setGameType(gameType: GameType) {
     }
@@ -166,6 +192,10 @@ class FakeVM: GameViewModel{
     override fun startGame() {
     }
 
-    override fun checkMatch() {
+    override fun checkMatch(int: Int) {
+    }
+
+    override fun btn_press() {
+        TODO("Not yet implemented")
     }
 }
