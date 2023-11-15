@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,11 +26,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import mobappdev.example.nback_cimpl.MainDestinations
 import mobappdev.example.nback_cimpl.R
 import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
@@ -49,7 +54,7 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 @Composable
 fun HomeScreen(
-    vm: GameViewModel
+    vm: GameViewModel,navController: NavController
 ) {
     val highscore by vm.highscore.collectAsState()  // Highscore is its own StateFlow
     val gameState by vm.gameState.collectAsState()
@@ -87,12 +92,20 @@ fun HomeScreen(
                             textAlign = TextAlign.Center
                         )
                     }
-                    Button(onClick = vm::startGame) {
+                    Button(modifier = Modifier.bounceClick(),
+                        colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
+                        onClick = {vm::startGame
+                        navController.navigate(MainDestinations.PLAY_ROUTE)} ){//set the visual or audio setting
                         //Text(text = "Generate eventValues")
                         Text(text = "Start Game")
+                    }
 
-
-
+                    Button(modifier = Modifier.bounceClick(),
+                        colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
+                        onClick = {vm::startGame
+                            navController.navigate(MainDestinations.SETTINGS_ROUTE)} ){//set the visual or audio setting
+                        //Text(text = "Generate eventValues")
+                        Text(text = "Settings")
                     }
                 }
             }
@@ -153,6 +166,6 @@ fun HomeScreen(
 fun HomeScreenPreview() {
     // Since I am injecting a VM into my homescreen that depends on Application context, the preview doesn't work.
     Surface(){
-        HomeScreen(FakeVM())
+        HomeScreen(FakeVM(), navController = rememberNavController())
     }
 }

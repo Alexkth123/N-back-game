@@ -304,11 +304,17 @@ fun Modifier.buttonflash( gameState: GameState,buttonValue: Int) = composed {
     LaunchedEffect(key1 = gameState.eventValue, key2 = buttonValue) {
         if (gameState.eventValue == buttonValue) {
             // Log is not available in Compose, but this represents your logging logic
-            println("GameVM: Blink box $buttonValue")
             Log.d("GameVM.", "Blink box $buttonValue")
-
             // Animate to the flashing color
-            flashingColor.animateTo(targetValue = Color(0xFFE67E22))
+            flashingColor.animateTo(targetValue = Color(0xFFE67E22),
+                                    animationSpec = TweenSpec(durationMillis = 300))
+
+            kotlinx.coroutines.delay(300) // The same duration to display the orange color
+            flashingColor.animateTo(
+                targetValue = Color(0xFF87CEEB),
+                animationSpec = TweenSpec(durationMillis = 400) // Shorter duration for the animation
+            )
+
         } else {
             // Revert to default color if not the correct button
             flashingColor.animateTo(targetValue = Color(0xFF87CEEB))
@@ -317,8 +323,6 @@ fun Modifier.buttonflash( gameState: GameState,buttonValue: Int) = composed {
 
     // 2. Apply the animated color to the background of the Modifier
     this.background(flashingColor.value)
-
-
 
 }
 

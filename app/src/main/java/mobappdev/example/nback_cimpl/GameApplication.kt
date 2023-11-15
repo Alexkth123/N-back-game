@@ -27,14 +27,18 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = APP_PREFERENCES_NAME
 )
 
+//private val Context.audioplayer: Context.ge
+
 /*
 * Custom app entry point for manual dependency injection
  */
 class GameApplication: Application() {
     lateinit var userPreferencesRespository: UserPreferencesRepository
-
+   // lateinit var audioPlayer: AudioPlayer
     override fun onCreate() {
         super.onCreate()
         userPreferencesRespository = UserPreferencesRepository(dataStore)
+
     }
+
 }

@@ -42,6 +42,8 @@ interface GameViewModel {
     val btnState: StateFlow<Boolean>
     val showValue: StateFlow<Int>
 
+
+
     fun setGameType(gameType: GameType)
     fun startGame()
 
@@ -62,6 +64,7 @@ class GameVM(
         get() = _score
 
     private val _highscore = MutableStateFlow(0)
+    //override val highscore: StateFlow<Int>
     override val highscore: StateFlow<Int>
         get() = _highscore
 
@@ -77,10 +80,16 @@ class GameVM(
     override val nBack: Int = 2
 
     private var job: Job? = null  // coroutine job for the game event
-    private val eventInterval: Long = 3000L  // 2000 ms (2s)
+    private val eventInterval: Long = 2000L  // 2000 ms (2s)
 
     private val nBackHelper = NBackHelper()  // Helper that generate the event array
     private var events = emptyArray<Int>()  // Array with all events
+
+
+
+
+
+
 
     override fun setGameType(gameType: GameType) {
         // update the gametype in the gamestate
@@ -96,6 +105,7 @@ class GameVM(
         events = nBackHelper.generateNBackString(20, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
         Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
 
+
         job = viewModelScope.launch {
             when (gameState.value.gameType) {
                 GameType.Audio -> runAudioGame()
@@ -103,7 +113,9 @@ class GameVM(
                 GameType.Visual -> runVisualGame(events)
 
             }
+
             // Todo: update the highscore
+            updateHighScore(_highscore.value)
         }
     }
 
@@ -111,9 +123,17 @@ class GameVM(
 
         //for checking the condition correctly you need to get the current event index displaying??
         // make a function that returns the index
-        if (_btnState.value and (events.get(showValue.value).equals(events.get(showValue.value-1)) )){ // and (events.get(int).equals(events.get(int)) )
+        if (_btnState.value and (events.get(showValue.value).equals(events.get(showValue.value-2)) )){ // and (events.get(int).equals(events.get(int)) )
             _score.value +=1
             Log.d("GameVM", "New score"+_score.value)
+        }
+    }
+
+
+    fun updateHighScore(newScore: Int) {
+        if (newScore > _highscore.value) {
+            _highscore.value = newScore
+            Log.d("GameVM", "Highscore updated "+_highscore.value)
         }
     }
 
@@ -126,6 +146,9 @@ class GameVM(
     }
 
 
+
+
+
     private fun runAudioGame() {
         // Todo: Make work for Basic grade
     }
@@ -135,7 +158,7 @@ class GameVM(
         for (value in events) {
             _showValue.value=value
             _gameState.value = _gameState.value.copy(eventValue = value)
-            Log.d("GameVM.runVisualGame loop", "Check match")
+            //Log.d("GameVM.runVisualGame loop", "Check match")
             //checkMatch(value)
 
             delay(eventInterval)
@@ -179,6 +202,10 @@ data class GameState(
     val eventValue: Int = -1  // The value of the array string
 )
 
+
+
+
+
 class FakeVM: GameViewModel{
     override val gameState: StateFlow<GameState>
         get() = MutableStateFlow(GameState()).asStateFlow()
@@ -192,6 +219,7 @@ class FakeVM: GameViewModel{
         get() = TODO("Not yet implemented")
     override val showValue: StateFlow<Int>
         get() = TODO("Not yet implemented")
+
 
     override fun setGameType(gameType: GameType) {
     }

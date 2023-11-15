@@ -31,6 +31,8 @@ class UserPreferencesRepository (
 ){
     private companion object {
         val HIGHSCORE = intPreferencesKey("highscore")
+        val EVENT_TIME = intPreferencesKey("event_time")
+        val EVENT_LENGTH = intPreferencesKey("event_length")
         const val TAG = "UserPreferencesRepo"
     }
 
@@ -52,4 +54,24 @@ class UserPreferencesRepository (
             preferences[HIGHSCORE] = score
         }
     }
+
+    suspend fun saveEventTime(score: Int) {
+        dataStore.edit { preferences ->
+            preferences[EVENT_TIME] = score
+        }
+    }
+
+    suspend fun saveEventLength(score: Int) {
+        dataStore.edit { preferences ->
+            preferences[EVENT_LENGTH] = score
+        }
+    }
+
+    suspend fun savedata(score: Int ,time:Int , leng: Int){
+        saveHighScore(score)
+        saveEventTime(time)
+        saveEventLength(leng)
+    }
+
+
 }
