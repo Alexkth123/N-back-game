@@ -95,15 +95,14 @@ fun HomeScreen(
                     Button(modifier = Modifier.bounceClick(),
                         colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
                         onClick = {vm::startGame
-                        navController.navigate(MainDestinations.PLAY_ROUTE)} ){//set the visual or audio setting
+                            navController.navigate(MainDestinations.PLAY_ROUTE)} ){//set the visual or audio setting
                         //Text(text = "Generate eventValues")
                         Text(text = "Start Game")
                     }
 
                     Button(modifier = Modifier.bounceClick(),
                         colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
-                        onClick = {vm::startGame
-                            navController.navigate(MainDestinations.SETTINGS_ROUTE)} ){//set the visual or audio setting
+                        onClick = { navController.navigate(MainDestinations.SETTINGS_ROUTE)} ){//set the visual or audio setting
                         //Text(text = "Generate eventValues")
                         Text(text = "Settings")
                     }

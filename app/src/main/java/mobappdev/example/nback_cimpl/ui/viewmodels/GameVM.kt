@@ -45,7 +45,8 @@ interface GameViewModel {
     val showValue: StateFlow<Int>
 
 
-
+    fun  get_gamefinished(): Boolean
+    fun set_gamefinished(value: Boolean):Boolean
 
     fun setGameType(gameType: GameType)
     fun startGame()
@@ -93,11 +94,20 @@ class GameVM(
 
     private val nBackHelper = NBackHelper()  // Helper that generate the event array
     private var events = emptyArray<Int>()  // Array with all events
+    private var events_audio = emptyArray<Int>()
+
 
     private var gotPoint=false
+    private var game_finished = false
 
+     override fun  get_gamefinished(): Boolean {
+        return game_finished
+    }
 
-
+     override fun set_gamefinished(value: Boolean): Boolean {
+        game_finished = value
+        return game_finished
+    }
 
 
 
@@ -108,6 +118,7 @@ class GameVM(
     }
 
     override fun startGame() {
+        set_gamefinished(false)
         job?.cancel()  // Cancel any existing game loop
         Log.d("GameVM", "Game starts")
         audioPlayer = AudioPlayer(context)
@@ -116,19 +127,21 @@ class GameVM(
 
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
         events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
+        events_audio = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
         Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
 
 
         job = viewModelScope.launch {
             when (gameState.value.gameType) {
-                GameType.Audio -> runAudioGame()
-                GameType.AudioVisual -> runAudioVisualGame()
+                GameType.Audio -> runAudioGame(events_audio)
+                GameType.AudioVisual -> runAudioVisualGame(events,events_audio)
                 GameType.Visual -> runVisualGame(events)
 
             }
 
             // Todo: update the highscore
             updateHighScore(_highscore.value)
+            set_gamefinished(true)
         }
     }
 
@@ -165,8 +178,17 @@ class GameVM(
 
 
 
-    private fun runAudioGame() {
-        // Todo: Make work for Basic grade
+    private suspend fun runAudioGame(_events_audio: Array<Int>) {
+        for (value in _events_audio) {
+            _showValue.value=value
+            _gameState.value = _gameState.value.copy(eventValue = value)
+            gotPoint=false
+            audioPlayer.play_audio(audioPlayer.int_to_asci(_events_audio.get(value)))
+            //Log.d("GameVM.runVisualGame loop", "Check match")
+            //checkMatch(value)
+
+            delay(eventInterval)
+        }
     }
 
     private suspend fun runVisualGame(events: Array<Int>){
@@ -181,19 +203,20 @@ class GameVM(
             delay(eventInterval)
         }
 
-        //upd
+         //Set game finished to false again
 
     }
 
-    private fun runAudioVisualGame(){
+    private fun runAudioVisualGame(events: Array<Int>,_events_audio: Array<Int>){
         // Todo: Make work for Higher grade
+        //Call like in the Audio Class
+        //
     }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as GameApplication)
-               //val gameap=GameApplication()
                 GameVM(application,application.userPreferencesRespository)
             }
         }
@@ -218,7 +241,7 @@ enum class GameType{
 
 data class GameState(
     // You can use this state to push values from the VM to your UI.
-    val gameType: GameType = GameType.Visual,  // Type of the game
+    val gameType: GameType = GameType.Audio,  // Type of the game
     val eventValue: Int = -1  // The value of the array string
 )
 
@@ -239,6 +262,14 @@ class FakeVM: GameViewModel{
         get() = TODO("Not yet implemented")
     override val showValue: StateFlow<Int>
         get() = TODO("Not yet implemented")
+
+    override fun get_gamefinished(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun set_gamefinished(value: Boolean): Boolean {
+        TODO("Not yet implemented")
+    }
 
 
     override fun setGameType(gameType: GameType) {

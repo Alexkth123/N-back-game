@@ -19,7 +19,16 @@ class AudioPlayer(context: Context) {  // Passing context needed for TextToSpeec
         test="\"Stephen hawkings initialized\""
         tts.language= Locale.ENGLISH
         tts.setSpeechRate(1f)
-        tts.speak(test, TextToSpeech.QUEUE_FLUSH, null, null)
+       // tts.speak(test, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+
+    fun int_to_asci(value:Int):String{
+      return ('A'+ value).toString()
+    }
+
+    fun play_audio(str:String){
+        tts.speak(str, TextToSpeech.QUEUE_FLUSH, null, null)
+
     }
 
 

@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-import mobappdev.example.nback_cimpl.MainDestinations
 import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
@@ -225,11 +224,14 @@ fun SettingsScreen(
                     colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
                     onClick = {
 
-                    vm.setGameType(selectedGameType)
+                        vm.setGameType(selectedGameType)
                     scope.launch {
                         snackBarHostState.showSnackbar(message = "Settings Saved!!!")
-                        navController.navigate(MainDestinations.HOME_ROUTE)
-                    } }
+                        //navController.navigate(MainDestinations.HOME_ROUTE)
+
+                    }
+                        navController.popBackStack()
+                    }
                 ) {
                     Text(text = "Save")
                 }

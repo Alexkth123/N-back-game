@@ -55,6 +55,7 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import androidx.compose.animation.core.*
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import mobappdev.example.nback_cimpl.MainDestinations
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameState
 
 /**
@@ -71,7 +72,7 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameState
  */
 
 @Composable
-fun PlayScreen(vm: GameViewModel) {
+fun PlayScreen(vm: GameViewModel,navController: NavController) {
     val boxvalue = 0
     val highscore by vm.highscore.collectAsState()  // Highscore is its own StateFlow
     val gameState by vm.gameState.collectAsState()
@@ -87,6 +88,10 @@ fun PlayScreen(vm: GameViewModel) {
 
     vm.setGameType(GameType.Visual)
     vm.startGame()
+
+    if (vm.get_gamefinished()){
+        navController.popBackStack()
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) }
@@ -326,7 +331,7 @@ fun Modifier.buttonflash( gameState: GameState,buttonValue: Int) = composed {
 fun PlayScreenPreview() {
     // Since I am injecting a VM into my homescreen that depends on Application context, the preview doesn't work.
     Surface(){
-        PlayScreen(FakeVM())
+        PlayScreen(FakeVM(),navController = rememberNavController())
     }
 }
 

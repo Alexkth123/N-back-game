@@ -71,7 +71,7 @@ fun AppNavigation() {
             HomeScreen(vm = gameViewModel, navController = navController)
         }
         composable(MainDestinations.PLAY_ROUTE) {
-            PlayScreen(vm = gameViewModel)
+            PlayScreen(vm = gameViewModel, navController = navController)
         }
         composable(MainDestinations.SETTINGS_ROUTE) {
             SettingsScreen(vm = gameViewModel,navController = navController)
