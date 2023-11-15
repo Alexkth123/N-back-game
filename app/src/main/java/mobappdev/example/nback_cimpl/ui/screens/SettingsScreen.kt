@@ -28,7 +28,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import mobappdev.example.nback_cimpl.MainDestinations
 import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
@@ -48,7 +51,7 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 @Composable
 fun SettingsScreen(
-    vm: GameViewModel
+    vm: GameViewModel,navController: NavController
 ) {
     val highscore by vm.highscore.collectAsState()  // Highscore is its own StateFlow
     val gameState by vm.gameState.collectAsState()
@@ -225,6 +228,7 @@ fun SettingsScreen(
                     vm.setGameType(selectedGameType)
                     scope.launch {
                         snackBarHostState.showSnackbar(message = "Settings Saved!!!")
+                        navController.navigate(MainDestinations.HOME_ROUTE)
                     } }
                 ) {
                     Text(text = "Save")
@@ -246,6 +250,6 @@ fun SettingsScreen(
 fun SettingsScreenPreview() {
     // Since I am injecting a VM into my homescreen that depends on Application context, the preview doesn't work.
     Surface(){
-        SettingsScreen(FakeVM())
+        SettingsScreen(FakeVM(), navController = rememberNavController())
     }
 }

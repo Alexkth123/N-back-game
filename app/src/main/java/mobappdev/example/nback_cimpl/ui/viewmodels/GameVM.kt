@@ -1,5 +1,6 @@
 package mobappdev.example.nback_cimpl.ui.viewmodels
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.GameApplication
 import mobappdev.example.nback_cimpl.NBackHelper
 import mobappdev.example.nback_cimpl.data.UserPreferencesRepository
+import mobappdev.example.nback_cimpl.ui.screens.AudioPlayer
 
 /**
  * This is the GameViewModel.
@@ -44,6 +46,7 @@ interface GameViewModel {
 
 
 
+
     fun setGameType(gameType: GameType)
     fun startGame()
 
@@ -52,8 +55,14 @@ interface GameViewModel {
 }
 
 class GameVM(
+    application: Application,
     private val userPreferencesRepository: UserPreferencesRepository
 ): GameViewModel, ViewModel() {
+
+
+    private val context = application.applicationContext
+    private lateinit var audioPlayer: AudioPlayer
+
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState>
         get() = _gameState.asStateFlow()
@@ -85,6 +94,8 @@ class GameVM(
     private val nBackHelper = NBackHelper()  // Helper that generate the event array
     private var events = emptyArray<Int>()  // Array with all events
 
+    private var gotPoint=false
+
 
 
 
@@ -99,10 +110,12 @@ class GameVM(
     override fun startGame() {
         job?.cancel()  // Cancel any existing game loop
         Log.d("GameVM", "Game starts")
+        audioPlayer = AudioPlayer(context)
+        audioPlayer.init()
 
 
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
-        events = nBackHelper.generateNBackString(20, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
+        events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
         Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
 
 
@@ -120,20 +133,23 @@ class GameVM(
     }
 
     override fun checkMatch(int: Int) {
+        //var lastEventValue = int
 
         //for checking the condition correctly you need to get the current event index displaying??
         // make a function that returns the index
         if (_btnState.value and (events.get(showValue.value).equals(events.get(showValue.value-2)) )){ // and (events.get(int).equals(events.get(int)) )
             _score.value +=1
+            gotPoint=true
             Log.d("GameVM", "New score"+_score.value)
         }
     }
 
 
-    fun updateHighScore(newScore: Int) {
+    suspend fun updateHighScore(newScore: Int) {
         if (newScore > _highscore.value) {
             _highscore.value = newScore
             Log.d("GameVM", "Highscore updated "+_highscore.value)
+            userPreferencesRepository.saveHighScore(_highscore.value)
         }
     }
 
@@ -158,11 +174,14 @@ class GameVM(
         for (value in events) {
             _showValue.value=value
             _gameState.value = _gameState.value.copy(eventValue = value)
+            gotPoint=false
             //Log.d("GameVM.runVisualGame loop", "Check match")
             //checkMatch(value)
 
             delay(eventInterval)
         }
+
+        //upd
 
     }
 
@@ -174,7 +193,8 @@ class GameVM(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as GameApplication)
-                GameVM(application.userPreferencesRespository)
+               //val gameap=GameApplication()
+                GameVM(application,application.userPreferencesRespository)
             }
         }
     }

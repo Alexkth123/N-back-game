@@ -74,7 +74,9 @@ fun AppNavigation() {
             PlayScreen(vm = gameViewModel)
         }
         composable(MainDestinations.SETTINGS_ROUTE) {
-            SettingsScreen(vm = gameViewModel)
+            SettingsScreen(vm = gameViewModel,navController = navController)
         }
     }
 }
+
+
