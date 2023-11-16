@@ -42,9 +42,22 @@ interface GameViewModel {
     val highscore: StateFlow<Int>
     val nBack: Int
     val btnState: StateFlow<Boolean>
+    val btnAudioState: StateFlow<Boolean>
     val showValue: StateFlow<Int>
 
 
+    val eventInterval:StateFlow<Long>
+    val event_length:StateFlow<Int>
+    val gamestate_selection:StateFlow<Int>
+
+
+    val gameTypeIndex: StateFlow<Int>
+    val gameTypeArray: Array<GameType>
+
+
+    fun incrementGameType()
+    fun decrementGameType()
+    fun getCurrentGameType(): GameType
     fun  get_gamefinished(): Boolean
     fun set_gamefinished(value: Boolean):Boolean
 
@@ -52,7 +65,17 @@ interface GameViewModel {
     fun startGame()
 
     fun checkMatch(int: Int)
+    fun checkAudioMatch(int: Int)
     fun btn_press()
+    fun btnAudio_press()
+    fun gamestate_selection_plus()
+    fun gamestate_selection_minus()
+    fun eventInterval_plus()
+    fun eventInterval_minus()
+    fun event_length_plus()
+    fun event_length_minus()
+
+
 }
 
 class GameVM(
@@ -82,15 +105,24 @@ class GameVM(
     override val btnState: StateFlow<Boolean>
         get() = _btnState
 
+    private val _btnAudioState = MutableStateFlow(false)
+    override val btnAudioState: StateFlow<Boolean>
+        get() = _btnAudioState
+
+
     private val _showValue = MutableStateFlow(0)
     override val showValue: StateFlow<Int>
         get() = _showValue
 
-    // nBack is currently hardcoded
-    override val nBack: Int = 2
+
+
+
 
     private var job: Job? = null  // coroutine job for the game event
-    private val eventInterval: Long = 2000L  // 2000 ms (2s)
+
+    //private val eventInterval: Long = 2000L  // 2000 ms (2s)
+    // nBack is currently hardcoded
+    override val nBack: Int = 2
 
     private val nBackHelper = NBackHelper()  // Helper that generate the event array
     private var events = emptyArray<Int>()  // Array with all events
@@ -99,6 +131,37 @@ class GameVM(
 
     private var gotPoint=false
     private var game_finished = false
+
+
+    /// Here is the varibles for the settings menu
+    private val _gameTypeIndex = MutableStateFlow(0)
+    override val gameTypeIndex: StateFlow<Int> = _gameTypeIndex.asStateFlow()
+    override val gameTypeArray = arrayOf(GameType.Visual, GameType.Audio, GameType.AudioVisual)
+
+    private val _eventInterval = MutableStateFlow( 2000L)
+    override val eventInterval: StateFlow<Long>
+        get() = _eventInterval
+
+    private val _event_length = MutableStateFlow(10)
+    override val event_length: StateFlow<Int>
+        get() = _event_length
+    private val _gamestate_selection = MutableStateFlow(0)
+    override val gamestate_selection: StateFlow<Int>
+        get() = _gamestate_selection
+
+
+
+    override fun incrementGameType() {
+        _gameTypeIndex.value = (_gameTypeIndex.value + 1) % gameTypeArray.size
+    }
+
+    override fun decrementGameType() {
+        _gameTypeIndex.value = (_gameTypeIndex.value - 1 + gameTypeArray.size) % gameTypeArray.size
+    }
+
+    override fun getCurrentGameType(): GameType {
+        return gameTypeArray[_gameTypeIndex.value]
+    }
 
      override fun  get_gamefinished(): Boolean {
         return game_finished
@@ -150,7 +213,17 @@ class GameVM(
 
         //for checking the condition correctly you need to get the current event index displaying??
         // make a function that returns the index
-        if (_btnState.value and (events.get(showValue.value).equals(events.get(showValue.value-2)) )){ // and (events.get(int).equals(events.get(int)) )
+        // Assuming _btnState is a MutableState<Boolean> and showValue is a MutableState<Int>
+        if (_btnState.value && showValue.value >= nBack && showValue.value < events.size && events[showValue.value] == events[showValue.value - nBack]){
+            _score.value += 1
+            gotPoint = true
+            Log.d("GameVM", "New score: ${_score.value}")
+        }
+
+    }
+
+    override fun checkAudioMatch(int: Int) {
+        if (_btnState.value and (events_audio[showValue.value].equals(events_audio.get(showValue.value-2)) )){ // and (events.get(int).equals(events.get(int)) )
             _score.value +=1
             gotPoint=true
             Log.d("GameVM", "New score"+_score.value)
@@ -174,33 +247,69 @@ class GameVM(
 
     }
 
+    override fun btnAudio_press() {
+        _btnAudioState.compareAndSet(false,true)
+        Log.d("GameVM", "Button pressed "+_btnAudioState.value)
+        checkAudioMatch(1)
+        _btnAudioState.compareAndSet(true,false)
+
+    }
 
 
+
+
+    override fun gamestate_selection_plus() {
+        _gamestate_selection.value +=1
+    }
+
+    override fun gamestate_selection_minus() {
+        _gamestate_selection.value -=1
+    }
+
+    override fun eventInterval_plus() {
+        _eventInterval.value += 1000L
+
+    }
+    override fun eventInterval_minus() {
+        _eventInterval.value -= 1000L
+    }
+
+    override fun event_length_plus() {
+        _event_length.value +=1
+    }
+
+    override fun event_length_minus() {
+        _event_length.value -=1
+    }
 
 
     private suspend fun runAudioGame(_events_audio: Array<Int>) {
+        delay(3000)
         for (value in _events_audio) {
             _showValue.value=value
             _gameState.value = _gameState.value.copy(eventValue = value)
             gotPoint=false
-            audioPlayer.play_audio(audioPlayer.int_to_asci(_events_audio.get(value)))
+            audioPlayer.play_audio(audioPlayer.int_to_asci(_events_audio[value]))
+            Log.d("GameVM", "_showValue.value: ${_showValue.value}")
             //Log.d("GameVM.runVisualGame loop", "Check match")
             //checkMatch(value)
 
-            delay(eventInterval)
+            delay(eventInterval.value)
         }
     }
 
     private suspend fun runVisualGame(events: Array<Int>){
         // Todo: Replace this code for actual game code
+        delay(3000)
+        _showValue.value=0
         for (value in events) {
-            _showValue.value=value
+            _showValue.value+=1
             _gameState.value = _gameState.value.copy(eventValue = value)
             gotPoint=false
-            //Log.d("GameVM.runVisualGame loop", "Check match")
+            Log.d("GameVM", "_showValue.value: ${_showValue.value}")
             //checkMatch(value)
 
-            delay(eventInterval)
+            delay(eventInterval.value)
         }
 
          //Set game finished to false again
@@ -241,7 +350,7 @@ enum class GameType{
 
 data class GameState(
     // You can use this state to push values from the VM to your UI.
-    val gameType: GameType = GameType.Audio,  // Type of the game
+    val gameType: GameType = GameType.Visual,  // Type of the game
     val eventValue: Int = -1  // The value of the array string
 )
 
@@ -260,8 +369,33 @@ class FakeVM: GameViewModel{
         get() = 2
     override val btnState: StateFlow<Boolean>
         get() = TODO("Not yet implemented")
+    override val btnAudioState: StateFlow<Boolean>
+        get() = TODO("Not yet implemented")
     override val showValue: StateFlow<Int>
         get() = TODO("Not yet implemented")
+    override val eventInterval: StateFlow<Long>
+        get() = TODO("Not yet implemented")
+
+    override val event_length: StateFlow<Int>
+        get() = TODO("Not yet implemented")
+    override val gamestate_selection: StateFlow<Int>
+        get() = TODO("Not yet implemented")
+    override val gameTypeIndex: StateFlow<Int>
+        get() = TODO("Not yet implemented")
+    override val gameTypeArray: Array<GameType>
+        get() = TODO("Not yet implemented")
+
+    override fun incrementGameType() {
+        TODO("Not yet implemented")
+    }
+
+    override fun decrementGameType() {
+        TODO("Not yet implemented")
+    }
+
+    override fun getCurrentGameType(): GameType {
+        TODO("Not yet implemented")
+    }
 
     override fun get_gamefinished(): Boolean {
         TODO("Not yet implemented")
@@ -281,7 +415,39 @@ class FakeVM: GameViewModel{
     override fun checkMatch(int: Int) {
     }
 
+    override fun checkAudioMatch(int: Int) {
+        TODO("Not yet implemented")
+    }
+
     override fun btn_press() {
+        TODO("Not yet implemented")
+    }
+
+    override fun btnAudio_press() {
+        TODO("Not yet implemented")
+    }
+
+    override fun gamestate_selection_plus() {
+        TODO("Not yet implemented")
+    }
+
+    override fun gamestate_selection_minus() {
+        TODO("Not yet implemented")
+    }
+
+    override fun eventInterval_plus() {
+        TODO("Not yet implemented")
+    }
+
+    override fun eventInterval_minus() {
+        TODO("Not yet implemented")
+    }
+
+    override fun event_length_plus() {
+        TODO("Not yet implemented")
+    }
+
+    override fun event_length_minus() {
         TODO("Not yet implemented")
     }
 }

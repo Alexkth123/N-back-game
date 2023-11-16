@@ -1,5 +1,6 @@
 package mobappdev.example.nback_cimpl.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,7 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
  *
  */
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun SettingsScreen(
     vm: GameViewModel,navController: NavController
@@ -60,6 +62,12 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     val gametypeArray = arrayOf(GameType.Visual, GameType.Audio, GameType.AudioVisual)
     var selectedGameType = GameType.Visual
+    //var numb by remember { mutableStateOf(0) }
+    val gameTypeIndex by vm.gameTypeIndex.collectAsState()
+    val currentGameType = vm.gameTypeArray[gameTypeIndex]
+    val eventTime by vm.eventInterval.collectAsState()
+    val eventLen by vm.event_length.collectAsState()
+
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) }
@@ -82,16 +90,17 @@ fun SettingsScreen(
 
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    //.weight(1f)
+                        ,
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                var numb = 0
+
                 Button(onClick = {
-                    if (numb<2){numb+=1}
-                    selectedGameType= gametypeArray[numb]
+                    vm.incrementGameType()
+                    //selectedGameType= gametypeArray[numb]
                 },
                     colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
                     modifier = Modifier
@@ -99,7 +108,10 @@ fun SettingsScreen(
                         .weight(1f)
                         .padding(35.dp) // Padding for each box, adjust as needed
                         .aspectRatio(1f) // This makes the Box a square
-                        .shadow(4.dp, RoundedCornerShape(55.dp)) // This adds a shadow with rounded corners
+                        .shadow(
+                            4.dp,
+                            RoundedCornerShape(55.dp)
+                        ) // This adds a shadow with rounded corners
                         .background(Color(0xFF87CEEB), RoundedCornerShape(55.dp)),
 
                     ) {
@@ -107,11 +119,11 @@ fun SettingsScreen(
                 }
 
 
-                Text(text = "${selectedGameType.toString()}") /// why is it not updating value
+                Text(text = " $currentGameType   ") /// maybe something with the len of the string
 
                 Button(onClick = {
-                    if (numb>0){numb-=1}
-                    selectedGameType= gametypeArray[numb]
+                    vm.decrementGameType()
+                    //selectedGameType= gametypeArray[numb]
                 },
                     colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
                     modifier = Modifier
@@ -119,7 +131,10 @@ fun SettingsScreen(
                         .weight(1f)
                         .padding(35.dp) // Padding for each box, adjust as needed
                         .aspectRatio(1f) // This makes the Box a square
-                        .shadow(4.dp, RoundedCornerShape(55.dp)) // This adds a shadow with rounded corners
+                        .shadow(
+                            4.dp,
+                            RoundedCornerShape(55.dp)
+                        ) // This adds a shadow with rounded corners
                         .background(Color(0xFF87CEEB), RoundedCornerShape(55.dp)))
                 {
                     Text(text = "-")
@@ -135,14 +150,17 @@ fun SettingsScreen(
             ) {
 
 
-                   Button(onClick = {},
+                   Button(onClick = {vm.eventInterval_plus()},
                        colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
                           modifier = Modifier
                               .bounceClick()
                               .weight(1f)
                               .padding(35.dp) // Padding for each box, adjust as needed
                               .aspectRatio(1f) // This makes the Box a square
-                              .shadow(4.dp, RoundedCornerShape(55.dp)) // This adds a shadow with rounded corners
+                              .shadow(
+                                  4.dp,
+                                  RoundedCornerShape(55.dp)
+                              ) // This adds a shadow with rounded corners
                               .background(Color(0xFF87CEEB), RoundedCornerShape(55.dp)),
 
                          ) {
@@ -150,16 +168,19 @@ fun SettingsScreen(
                    }
 
 
-                    Text(text = "Event time: xS")
+                    Text(text = "Event time: "+ eventTime.toString()+"ms" )
 
-                    Button(onClick = {},
+                    Button(onClick = {vm.eventInterval_minus()},
                         colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
                         modifier = Modifier
                             .bounceClick()
                             .weight(1f)
                             .padding(35.dp) // Padding for each box, adjust as needed
                             .aspectRatio(1f) // This makes the Box a square
-                            .shadow(4.dp, RoundedCornerShape(55.dp)) // This adds a shadow with rounded corners
+                            .shadow(
+                                4.dp,
+                                RoundedCornerShape(55.dp)
+                            ) // This adds a shadow with rounded corners
                             .background(Color(0xFF87CEEB), RoundedCornerShape(55.dp)))
                     {
                         Text(text = "-")
@@ -175,14 +196,17 @@ fun SettingsScreen(
             ) {
 
 
-                Button(onClick = {},
+                Button(onClick = {vm.event_length_plus()},
                     colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
                     modifier = Modifier
                         .bounceClick()
                         .weight(1f)
                         .padding(35.dp) // Padding for each box, adjust as needed
                         .aspectRatio(1f) // This makes the Box a square
-                        .shadow(4.dp, RoundedCornerShape(55.dp)) // This adds a shadow with rounded corners
+                        .shadow(
+                            4.dp,
+                            RoundedCornerShape(55.dp)
+                        ) // This adds a shadow with rounded corners
                         .background(Color(0xFF87CEEB), RoundedCornerShape(55.dp)),
 
                     ) {
@@ -190,16 +214,19 @@ fun SettingsScreen(
                 }
 
 
-                Text(text = "Event Length: x")
+                Text(text = "Event Length: "+ eventLen)
 
-                Button(onClick = {},
+                Button(onClick = {vm.event_length_minus()},
                     colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
                     modifier = Modifier
                         .bounceClick()
                         .weight(1f)
                         .padding(35.dp) // Padding for each box, adjust as needed
                         .aspectRatio(1f) // This makes the Box a square
-                        .shadow(4.dp, RoundedCornerShape(55.dp)) // This adds a shadow with rounded corners
+                        .shadow(
+                            4.dp,
+                            RoundedCornerShape(55.dp)
+                        ) // This adds a shadow with rounded corners
                         .background(Color(0xFF87CEEB), RoundedCornerShape(55.dp)))
                 {
                     Text(text = "-")
@@ -228,7 +255,6 @@ fun SettingsScreen(
                     scope.launch {
                         snackBarHostState.showSnackbar(message = "Settings Saved!!!")
                         //navController.navigate(MainDestinations.HOME_ROUTE)
-
                     }
                         navController.popBackStack()
                     }

@@ -53,8 +53,11 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.MainDestinations
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameState
 
@@ -86,7 +89,7 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
     val buttonToFlash = remember { mutableStateOf(-1) } // -1 means no button should flash
 
 
-    vm.setGameType(GameType.Visual)
+    //vm.setGameType(GameType.Visual)
     vm.startGame()
 
     if (vm.get_gamefinished()){
@@ -103,17 +106,34 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp),
-                text = "N = 2 :${gameState.eventValue}",
-                color = Color.LightGray,
-                fontSize = 44.sp,
-                textAlign = TextAlign.Center,
+
+         //   Row () {
 
 
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    text = "Score :${vm.score.value}",
+                    color = Color.LightGray,
+                    fontSize = 44.sp,
+                    textAlign = TextAlign.Center,
                 )
+
+                Button(
+                    modifier = Modifier.bounceClick().padding(end = 10.dp),
+                    colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
+                    onClick = { navController.popBackStack() },
+                )
+                {
+                    Text(text = "Back")
+                }
+         //   }
+
+                Row (){
+
+                    ProgressBar(eventValue =vm.showValue.value , arraySize = 10)
+                }
             // Todo: You'll probably want to change this "BOX" part of the composable
             Box(
                 modifier = Modifier.weight(1f),
@@ -150,9 +170,12 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
                                         .weight(1f)
                                         .padding(4.dp) // Padding for each box, adjust as needed
                                         .aspectRatio(1f) // This makes the Box a square
-                                        .shadow(4.dp, RoundedCornerShape(10.dp)) // This adds a shadow with rounded corners
+                                        .shadow(
+                                            4.dp,
+                                            RoundedCornerShape(10.dp)
+                                        ) // This adds a shadow with rounded corners
                                         .background(Color(0xFF87CEEB), RoundedCornerShape(10.dp))
-                                        .buttonflash(gameState,buttonValue)
+                                        .buttonflash(gameState, buttonValue)
                                 ) {
                                     Button(
                                         onClick = {
@@ -203,7 +226,8 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
                                 ) // This sets the rounded corner background to white
                         ) {
                             Button(
-                                onClick = { vm.btn_press() },
+                                onClick = { vm.btn_press()
+                                          vm.btnAudio_press()},
                                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                                 elevation = null,
                                 modifier = Modifier
@@ -229,13 +253,20 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
                             .weight(1f)
                             .padding(30.dp)
                             .aspectRatio(1f) // This makes the Box a square
-                            .shadow(4.dp, RoundedCornerShape(30.dp)) // This adds a shadow with rounded corners
-                            .background(Color(0xFF007AFF), RoundedCornerShape(30.dp)
+                            .shadow(
+                                4.dp,
+                                RoundedCornerShape(30.dp)
+                            ) // This adds a shadow with rounded corners
+                            .background(
+                                Color(0xFF007AFF), RoundedCornerShape(30.dp)
                             ) // This sets the rounded corner background to white
                     ) {
 
                             Button(
-                                onClick = { vm.btn_press() },
+                                onClick = {
+                                vm.btn_press()},
+                                //vm.checkMatch(1)
+
                                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                                 elevation = null,
                                 modifier = Modifier
@@ -322,6 +353,20 @@ fun Modifier.buttonflash( gameState: GameState,buttonValue: Int) = composed {
     this.background(flashingColor.value)
 
 }
+
+@Composable
+fun ProgressBar(eventValue: Int, arraySize: Int) {
+    val progress = eventValue.toFloat() / arraySize.toFloat()
+
+    LinearProgressIndicator(
+        progress = progress,
+        color = Color.Blue,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+        trackColor = Color.Gray
+    )
+}
+
+
 
 
 
