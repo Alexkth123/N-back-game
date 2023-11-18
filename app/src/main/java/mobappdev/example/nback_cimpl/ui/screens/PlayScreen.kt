@@ -57,6 +57,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.MainDestinations
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameState
@@ -89,12 +90,10 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
     val buttonToFlash = remember { mutableStateOf(-1) } // -1 means no button should flash
 
 
-    //vm.setGameType(GameType.Visual)
-    vm.startGame()
 
-    if (vm.get_gamefinished()){
-        navController.popBackStack()
-    }
+
+
+
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) }
@@ -121,9 +120,12 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
                 )
 
                 Button(
-                    modifier = Modifier.bounceClick().padding(end = 10.dp),
+                    modifier = Modifier
+                        .bounceClick()
+                        .padding(end = 10.dp),
                     colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
-                    onClick = { navController.popBackStack() },
+                    onClick = { navController.popBackStack()
+                              },
                 )
                 {
                     Text(text = "Back")
@@ -132,7 +134,11 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
 
                 Row (){
 
-                    ProgressBar(eventValue =vm.showValue.value , arraySize = 10)
+                   if( ProgressBar(eventValue =vm.showValue.value , arraySize = vm.event_length.value)){
+                       //navController.popBackStack()
+                       vm.set_gamefinished(true)
+                      // navController.navigate(MainDestinations.HOME_ROUTE)
+                   }
                 }
             // Todo: You'll probably want to change this "BOX" part of the composable
             Box(
@@ -190,6 +196,7 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
                                         shape = RoundedCornerShape(10.dp) // This applies the rounded corners to the button itself
                                     ) {
                                         // The button content goes here
+                                        Text(text = ""+buttonValue)
                                     }
                                 }
                             }
@@ -328,9 +335,9 @@ fun Modifier.buttonflash( gameState: GameState,buttonValue: Int) = composed {
     //var Buttonflash by remember { mutableStateOf(buttonflash.Idle) }
     val flashingColor = remember { Animatable(Color(0xFF87CEEB)) }
 
-
+if( gameState.gameType==GameType.Visual || gameState.gameType==GameType.AudioVisual){
     LaunchedEffect(key1 = gameState.eventValue, key2 = buttonValue) {
-        if (gameState.eventValue == buttonValue) {
+        if (gameState.eventValue == buttonValue ) {
             // Log is not available in Compose, but this represents your logging logic
             Log.d("GameVM.", "Blink box $buttonValue")
             // Animate to the flashing color
@@ -348,22 +355,27 @@ fun Modifier.buttonflash( gameState: GameState,buttonValue: Int) = composed {
             flashingColor.animateTo(targetValue = Color(0xFF87CEEB))
         }
     }
-
+}
     // 2. Apply the animated color to the background of the Modifier
     this.background(flashingColor.value)
 
 }
 
 @Composable
-fun ProgressBar(eventValue: Int, arraySize: Int) {
+fun ProgressBar(eventValue: Int, arraySize: Int):Boolean {
     val progress = eventValue.toFloat() / arraySize.toFloat()
 
     LinearProgressIndicator(
         progress = progress,
         color = Color.Blue,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp),
         trackColor = Color.Gray
     )
+    if(progress==(1).toFloat()){return true} else {return false}
+
+
 }
 
 

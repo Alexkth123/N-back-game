@@ -6,9 +6,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import java.io.IOException
 
 /**
@@ -26,12 +28,18 @@ import java.io.IOException
  *
  */
 
+data class UserPreferences(
+    val highScore: Int,
+    val eventTime: Long,
+    val eventLength: Int
+)
+
 class UserPreferencesRepository (
     private val dataStore: DataStore<Preferences>
 ){
-    private companion object {
+     companion object {
         val HIGHSCORE = intPreferencesKey("highscore")
-        val EVENT_TIME = intPreferencesKey("event_time")
+        val EVENT_TIME = longPreferencesKey("event_time")
         val EVENT_LENGTH = intPreferencesKey("event_length")
         const val TAG = "UserPreferencesRepo"
     }
@@ -55,7 +63,7 @@ class UserPreferencesRepository (
         }
     }
 
-    suspend fun saveEventTime(score: Int) {
+    suspend fun saveEventTime(score: Long) {
         dataStore.edit { preferences ->
             preferences[EVENT_TIME] = score
         }
@@ -67,11 +75,40 @@ class UserPreferencesRepository (
         }
     }
 
-    suspend fun savedata(score: Int ,time:Int , leng: Int){
-        saveHighScore(score)
-        saveEventTime(time)
-        saveEventLength(leng)
-    }
+     suspend fun saveData(gameViewModel: GameViewModel){
 
+        saveHighScore(gameViewModel.highscore.value)
+        saveEventTime(gameViewModel.eventInterval.value)
+        saveEventLength(gameViewModel.event_length.value)
+    }
+/*
+   suspend fun loadData(){
+       /      CoroutineScope(Dispatchers.IO).launch {
+           val highScore = userPreferencesRepository.readHighScore().first()
+           val eventTime = userPreferencesRepository.readEventTime().first()
+           val eventLength = userPreferencesRepository.readEventLength().first()
+           // Use these values to initialize your game or ViewModel
+
+
+       }
+
+   }
+*/
+val userPreferences: Flow<UserPreferences> = dataStore.data
+    .catch { exception ->
+        if (exception is IOException) {
+            Log.e(TAG, "Error reading preferences.", exception)
+            emit(emptyPreferences()) // Fallback to empty preferences
+        } else {
+            throw exception
+        }
+    }
+    .map { preferences ->
+        UserPreferences(
+            highScore = preferences[HIGHSCORE] ?: 0,
+            eventTime = preferences[EVENT_TIME] ?: 2000L,
+            eventLength = preferences[EVENT_LENGTH] ?: 10
+        )
+    }
 
 }

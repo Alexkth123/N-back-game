@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import mobappdev.example.nback_cimpl.data.UserPreferencesRepository
+import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 /**
  * This is the Main Application
@@ -27,17 +28,25 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = APP_PREFERENCES_NAME
 )
 
-//private val Context.audioplayer: Context.ge
 
 /*
 * Custom app entry point for manual dependency injection
  */
 class GameApplication: Application() {
     lateinit var userPreferencesRespository: UserPreferencesRepository
+    lateinit var vm : GameViewModel
    // lateinit var audioPlayer: AudioPlayer
     override fun onCreate() {
         super.onCreate()
         userPreferencesRespository = UserPreferencesRepository(dataStore)
+
+
+       // Load settings on application start
+      // CoroutineScope(Dispatchers.IO).launch {
+           // Implement a function in your repository to load all necessary data
+           // and then initialize your view models with this data.
+          // userPreferencesRespository.loadData()
+      // }
 
     }
 

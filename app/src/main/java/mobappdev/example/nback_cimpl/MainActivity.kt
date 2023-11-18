@@ -58,6 +58,7 @@ object MainDestinations {
 @Composable
 fun AppNavigation() {
     // Instantiate the viewmodel
+
     val gameViewModel: GameVM = viewModel(
         factory = GameVM.Factory
     )

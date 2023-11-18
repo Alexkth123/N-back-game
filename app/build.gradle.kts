@@ -71,6 +71,7 @@ dependencies {
 
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.google.firebase:firebase-inappmessaging-ktx:20.4.0")
 
     testImplementation("junit:junit:4.13.2")
 

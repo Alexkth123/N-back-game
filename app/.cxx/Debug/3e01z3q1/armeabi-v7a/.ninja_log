@@ -39,3 +39,13 @@
 2	54	1700146330596008605	CMakeFiles/JniBridge.dir/JniBridge.c.o	75a995679a41442a
 54	88	1700146330629548897	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/armeabi-v7a/libnback_cimpl.so	f2b86d82106e803a
 88	118	1700146330658970917	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/armeabi-v7a/libJniBridge.so	20f95cc8251889cc
+1	25	0	clean	80e0ab3a1ddaf9c9
+2	78	1700227433145728190	CMakeFiles/nback_cimpl.dir/nback.c.o	e50f83994ca714c4
+2	79	1700227433147559725	CMakeFiles/JniBridge.dir/JniBridge.c.o	75a995679a41442a
+79	137	1700227433198034118	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/armeabi-v7a/libnback_cimpl.so	f2b86d82106e803a
+137	179	1700227433246421935	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/armeabi-v7a/libJniBridge.so	20f95cc8251889cc
+1	14	0	clean	80e0ab3a1ddaf9c9
+4	85	1700255233763681467	CMakeFiles/JniBridge.dir/JniBridge.c.o	75a995679a41442a
+4	85	1700255233762763943	CMakeFiles/nback_cimpl.dir/nback.c.o	e50f83994ca714c4
+85	124	1700255233802160812	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/armeabi-v7a/libnback_cimpl.so	f2b86d82106e803a
+124	168	1700255233845663519	/Users/alexvarling/Documents/KTH/y3/mobile_applicatin/nback_game/app/build/intermediates/cxx/Debug/3e01z3q1/obj/armeabi-v7a/libJniBridge.so	20f95cc8251889cc

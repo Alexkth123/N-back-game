@@ -40,7 +40,7 @@ interface GameViewModel {
     val gameState: StateFlow<GameState>
     val score: StateFlow<Int>
     val highscore: StateFlow<Int>
-    val nBack: Int
+    val nBack: StateFlow<Int>
     val btnState: StateFlow<Boolean>
     val btnAudioState: StateFlow<Boolean>
     val showValue: StateFlow<Int>
@@ -75,6 +75,12 @@ interface GameViewModel {
     fun event_length_plus()
     fun event_length_minus()
 
+    fun nback_plus()
+    fun nback_minus()
+
+    fun onGameFinishedSave()
+
+
 
 }
 
@@ -83,13 +89,14 @@ class GameVM(
     private val userPreferencesRepository: UserPreferencesRepository
 ): GameViewModel, ViewModel() {
 
-
+    private lateinit var repository:UserPreferencesRepository
     private val context = application.applicationContext
     private lateinit var audioPlayer: AudioPlayer
 
+
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState>
-        get() = _gameState.asStateFlow()
+        get() = _gameState
 
 
     private val _score = MutableStateFlow(0)
@@ -122,7 +129,9 @@ class GameVM(
 
     //private val eventInterval: Long = 2000L  // 2000 ms (2s)
     // nBack is currently hardcoded
-    override val nBack: Int = 2
+    private val _nBack = MutableStateFlow(2)
+    override val nBack: StateFlow<Int>
+        get() =_nBack
 
     private val nBackHelper = NBackHelper()  // Helper that generate the event array
     private var events = emptyArray<Int>()  // Array with all events
@@ -130,7 +139,7 @@ class GameVM(
 
 
     private var gotPoint=false
-    private var game_finished = false
+    private var game_finished = MutableStateFlow(false)
 
 
     /// Here is the varibles for the settings menu
@@ -164,12 +173,12 @@ class GameVM(
     }
 
      override fun  get_gamefinished(): Boolean {
-        return game_finished
+        return game_finished.value
     }
 
      override fun set_gamefinished(value: Boolean): Boolean {
-        game_finished = value
-        return game_finished
+        game_finished.value = value
+        return game_finished.value
     }
 
 
@@ -178,9 +187,12 @@ class GameVM(
     override fun setGameType(gameType: GameType) {
         // update the gametype in the gamestate
         _gameState.value = _gameState.value.copy(gameType = gameType)
+        //_gameState.value.gameType=gameType
+
     }
 
     override fun startGame() {
+        _showValue.value=0
         set_gamefinished(false)
         job?.cancel()  // Cancel any existing game loop
         Log.d("GameVM", "Game starts")
@@ -189,8 +201,8 @@ class GameVM(
 
 
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
-        events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
-        events_audio = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
+        events = nBackHelper.generateNBackString(event_length.value, 9, 30, nBack.value).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
+        events_audio = nBackHelper.generateNBackString(event_length.value, 9, 30, nBack.value).toList().toTypedArray()
         Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
 
 
@@ -204,7 +216,7 @@ class GameVM(
 
             // Todo: update the highscore
             updateHighScore(_highscore.value)
-            set_gamefinished(true)
+            Log.d("GameVM", "highscore Updated ${highscore.value}")
         }
     }
 
@@ -214,7 +226,7 @@ class GameVM(
         //for checking the condition correctly you need to get the current event index displaying??
         // make a function that returns the index
         // Assuming _btnState is a MutableState<Boolean> and showValue is a MutableState<Int>
-        if (_btnState.value && showValue.value >= nBack && showValue.value < events.size && events[showValue.value] == events[showValue.value - nBack]){
+        if (_btnState.value && showValue.value >= nBack.value && showValue.value < events.size && events[showValue.value] == events[showValue.value - nBack.value]){
             _score.value += 1
             gotPoint = true
             Log.d("GameVM", "New score: ${_score.value}")
@@ -223,11 +235,12 @@ class GameVM(
     }
 
     override fun checkAudioMatch(int: Int) {
-        if (_btnState.value and (events_audio[showValue.value].equals(events_audio.get(showValue.value-2)) )){ // and (events.get(int).equals(events.get(int)) )
-            _score.value +=1
-            gotPoint=true
-            Log.d("GameVM", "New score"+_score.value)
+        if (_btnState.value && showValue.value >= nBack.value && showValue.value < events_audio.size && events_audio[showValue.value] == events_audio[showValue.value - nBack.value]){
+            _score.value += 1
+            gotPoint = true
+            Log.d("GameVM", "New Audio_score: ${_score.value}")
         }
+
     }
 
 
@@ -282,24 +295,26 @@ class GameVM(
         _event_length.value -=1
     }
 
+    override fun nback_plus() {
+        _nBack.value +=1
+    }
 
-    private suspend fun runAudioGame(_events_audio: Array<Int>) {
-        delay(3000)
-        for (value in _events_audio) {
-            _showValue.value=value
-            _gameState.value = _gameState.value.copy(eventValue = value)
-            gotPoint=false
-            audioPlayer.play_audio(audioPlayer.int_to_asci(_events_audio[value]))
-            Log.d("GameVM", "_showValue.value: ${_showValue.value}")
-            //Log.d("GameVM.runVisualGame loop", "Check match")
-            //checkMatch(value)
+    override fun nback_minus() {
+        if (nBack.value>0){_nBack.value -=1}
 
-            delay(eventInterval.value)
+    }
+
+    override fun onGameFinishedSave() {
+
+        // Save data when the game is finished
+        viewModelScope.launch {
+            repository.saveData(this@GameVM)
+
         }
     }
 
-    private suspend fun runVisualGame(events: Array<Int>){
-        // Todo: Replace this code for actual game code
+
+    private suspend fun runAudioGame(_events_audio: Array<Int>) {
         delay(3000)
         _showValue.value=0
         for (value in events) {
@@ -311,15 +326,54 @@ class GameVM(
 
             delay(eventInterval.value)
         }
+        set_gamefinished(true) // unused varible
+        _showValue.value=0
+        updateHighScore(score.value)///
+        Log.d("GameVM", "Game finised")
+    }
+
+    private suspend fun runVisualGame(events: Array<Int>){
+        // Todo: Replace this code for actual game code
+        delay(3000)
+        _showValue.value=0
+
+
+        for (value in events) {
+            _showValue.value+=1
+            _gameState.value = _gameState.value.copy(eventValue = value)
+            gotPoint=false
+            Log.d("GameVM", "_showValue.value: ${_showValue.value}")
+
+            delay(eventInterval.value)
+        }
+        set_gamefinished(true) // unused varible
+        _showValue.value=0
+        updateHighScore(score.value)///
+        Log.d("GameVM", "Game finised")
+
 
          //Set game finished to false again
 
     }
 
-    private fun runAudioVisualGame(events: Array<Int>,_events_audio: Array<Int>){
-        // Todo: Make work for Higher grade
-        //Call like in the Audio Class
-        //
+    private suspend fun runAudioVisualGame(events: Array<Int>,_events_audio: Array<Int>){
+        delay(3000)
+        _showValue.value=0
+
+
+        for (value in events) {
+            _showValue.value+=1
+            _gameState.value = _gameState.value.copy(eventValue = value)
+            gotPoint=false
+            Log.d("GameVM", "_showValue.value: ${_showValue.value}")
+
+            delay(eventInterval.value)
+        }
+        set_gamefinished(true) // unused varible
+        _showValue.value=0
+        updateHighScore(score.value)///
+        Log.d("GameVM", "Game finised")
+
     }
 
     companion object {
@@ -334,9 +388,22 @@ class GameVM(
     init {
         // Code that runs during creation of the vm
         viewModelScope.launch {
-            userPreferencesRepository.highscore.collect {
-                _highscore.value = it
+            userPreferencesRepository.userPreferences.collect { preferences ->
+                _highscore.value = preferences.highScore
+                _eventInterval.value = preferences.eventTime
+                _event_length.value = preferences.eventLength
+                // Update other states as necessary
             }
+
+
+
+            /*
+                userPreferencesRepository.highscore.collect {
+                    _highscore.value = userPreferencesRepository.highscore
+
+                }
+
+                */
         }
     }
 }
@@ -365,8 +432,8 @@ class FakeVM: GameViewModel{
         get() = MutableStateFlow(2).asStateFlow()
     override val highscore: StateFlow<Int>
         get() = MutableStateFlow(42).asStateFlow()
-    override val nBack: Int
-        get() = 2
+    override val nBack: StateFlow<Int>
+        get() = TODO("Not yet implemented")
     override val btnState: StateFlow<Boolean>
         get() = TODO("Not yet implemented")
     override val btnAudioState: StateFlow<Boolean>
@@ -448,6 +515,18 @@ class FakeVM: GameViewModel{
     }
 
     override fun event_length_minus() {
+        TODO("Not yet implemented")
+    }
+
+    override fun nback_plus() {
+        TODO("Not yet implemented")
+    }
+
+    override fun nback_minus() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onGameFinishedSave() {
         TODO("Not yet implemented")
     }
 }

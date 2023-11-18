@@ -3,18 +3,16 @@ package mobappdev.example.nback_cimpl.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -27,15 +25,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.MainDestinations
-import mobappdev.example.nback_cimpl.R
 import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
@@ -82,31 +77,49 @@ fun HomeScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(
-                    Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(it),
+                    verticalArrangement = Arrangement.Center, // Centers the Column's children vertically
+                    horizontalAlignment = Alignment.CenterHorizontally // Centers the Column's children horizontally
                 ) {
-                    if (gameState.eventValue != -1) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = "Current eventValue is: ${gameState.eventValue}",
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    Button(modifier = Modifier.bounceClick(),
-                        colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
-                        onClick = { navController.navigate(MainDestinations.PLAY_ROUTE)} ){//set the visual or audio setting
-                        //Text(text = "Generate eventValues")
-                        Text(text = "Start Game")
+
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally, // Center content horizontally within the Column
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        Button(modifier = Modifier.bounceClick().size(width = 200.dp, height = 60.dp,),
+                            colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
+                            onClick = { navController.navigate(MainDestinations.PLAY_ROUTE)
+                                        vm.startGame()} ){//set the visual or audio setting
+                            //Text(text = "Generate eventValues")
+                            Text(text = "Start Game",style = androidx.compose.ui.text.TextStyle(
+                                fontSize = 18.sp
+                            )
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+
+                        Button(modifier = Modifier.bounceClick().size(width = 160.dp, height = 48.dp,),
+                            colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
+                            onClick = { navController.navigate(MainDestinations.SETTINGS_ROUTE)} ){//set the visual or audio setting
+                            //Text(text = "Generate eventValues")
+                            Text(text = "Settings",style = androidx.compose.ui.text.TextStyle(
+                                fontSize = 14.sp
+                            ))
+                        }
+
                     }
 
-                    Button(modifier = Modifier.bounceClick(),
-                        colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
-                        onClick = { navController.navigate(MainDestinations.SETTINGS_ROUTE)} ){//set the visual or audio setting
-                        //Text(text = "Generate eventValues")
-                        Text(text = "Settings")
-                    }
+
+
                 }
             }
+
+            /*
             Text(
                 modifier = Modifier.padding(16.dp),
                 text = "Start Game".uppercase(),
@@ -155,6 +168,11 @@ fun HomeScreen(
                     )
                 }
             }
+
+
+             */
+
+
         }
     }
 }
