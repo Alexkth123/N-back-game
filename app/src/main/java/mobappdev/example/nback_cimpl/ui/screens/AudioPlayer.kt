@@ -17,7 +17,7 @@ class AudioPlayer(context: Context) {  // Passing context needed for TextToSpeec
     private lateinit var test: String
 
     fun init(){
-        test="\"Stephen hawkings initialized\""
+        test="\"Audio player init\""
         tts.language= Locale.ENGLISH
         tts.setSpeechRate(1f)
        // tts.speak(test, TextToSpeech.QUEUE_FLUSH, null, null)

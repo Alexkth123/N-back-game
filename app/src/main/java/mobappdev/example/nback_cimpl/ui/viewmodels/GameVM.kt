@@ -197,10 +197,10 @@ class GameVM(
        // job?.cancel()  // Cancel any existing game loop
         Log.d("GameVM", "Game starts")
         audioPlayer = AudioPlayer(context)
-        audioPlayer.init()
+        //audioPlayer.init()
 
 
-        // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
+
         events = nBackHelper.generateNBackString(event_length.value, 9, 30, nBack.value).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
         events_audio = nBackHelper.generateNBackString(event_length.value, 9, 30, nBack.value).toList().toTypedArray()
         Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
@@ -222,15 +222,14 @@ class GameVM(
 
     override fun checkMatch(int: Int) {
         //var lastEventValue = int
-
-        //for checking the condition correctly you need to get the current event index displaying??
-        // make a function that returns the index
-        // Assuming _btnState is a MutableState<Boolean> and showValue is a MutableState<Int>
+        
         if (_btnState.value && showValue.value >= nBack.value && showValue.value < events.size && events[showValue.value] == events[showValue.value - nBack.value]){
             _score.value += 1
             gotPoint = true
             Log.d("GameVM", "New score: ${_score.value}")
-        }
+        }else{
+
+            Log.d("GameVM", "No score"+events[showValue.value] +"!="+ events[showValue.value - nBack.value])}
 
     }
 
@@ -319,15 +318,17 @@ class GameVM(
         _showValue.value=0
 
         for (value in _events_audio) {
-            _showValue.value+=1
+
             _gameState.value = _gameState.value.copy(eventValue = value)
 
             audioPlayer.play_audio(audioPlayer.int_to_asci(value))
-            gotPoint=false
+
             Log.d("GameVM", "_showValue.value: ${_showValue.value}")
             //checkMatch(value)
 
             delay(eventInterval.value)
+            gotPoint=false
+            _showValue.value+=1
         }
         set_gamefinished(true) // unused varible
         _showValue.value=0
@@ -342,12 +343,12 @@ class GameVM(
 
 
         for (value in events) {
-            _showValue.value+=1
+
             _gameState.value = _gameState.value.copy(eventValue = value)
 
             ////
-            delay(1000)
-            _gameState.value = _gameState.value.copy(eventValue = -1)
+             delay(1000)
+            _gameState.value = _gameState.value.copy(eventValue = -1) // this might be the problem
             /////
 
 
@@ -356,6 +357,7 @@ class GameVM(
 
             delay(eventInterval.value)
             gotPoint=false
+            _showValue.value+=1
         }
         set_gamefinished(true) // unused varible
         _showValue.value=0
@@ -369,6 +371,8 @@ class GameVM(
 
      override fun stopGame(){
         job?.cancel()
+         _score.value=0
+         _gameState.value = _gameState.value.copy(eventValue = -1)
     }
 
     private suspend fun runAudioVisualGame(events: Array<Int>,_events_audio: Array<Int>){
@@ -377,17 +381,19 @@ class GameVM(
 
 
         for (i in 0 until events.size) {
-            _showValue.value+=1
+
             _gameState.value = _gameState.value.copy(eventValue = events[i])
 
             audioPlayer.play_audio(audioPlayer.int_to_asci(_events_audio[i]))
 
-            gotPoint=false
+
             Log.d("GameVM", "_showValue.value: ${_showValue.value}")
 
             delay(eventInterval.value)
+            gotPoint=false
+            _showValue.value+=1
         }
-        set_gamefinished(true) // unused varible
+        set_gamefinished(true) // unused varible???
         _showValue.value=0
         updateHighScore(score.value)///
         Log.d("GameVM", "Game finised")

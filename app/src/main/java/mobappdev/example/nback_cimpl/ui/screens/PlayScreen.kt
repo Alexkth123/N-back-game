@@ -162,7 +162,7 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
 
                             Button(
                                 onClick = {
-                                    vm.btn_press()
+                                   // vm.btn_press()
                                     vm.btnAudio_press()
                                 },
                                 colors = ButtonDefaults.buttonColors(Color.Transparent),
@@ -283,7 +283,6 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
                                 onClick = {
                                     vm.btn_press()
                                 },
-                                //vm.checkMatch(1)
 
                                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                                 elevation = null,
