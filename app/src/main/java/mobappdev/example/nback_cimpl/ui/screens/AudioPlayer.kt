@@ -2,6 +2,7 @@ package mobappdev.example.nback_cimpl.ui.screens
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import java.util.Locale
 
 
@@ -28,6 +29,7 @@ class AudioPlayer(context: Context) {  // Passing context needed for TextToSpeec
 
     fun play_audio(str:String){
         tts.speak(str, TextToSpeech.QUEUE_FLUSH, null, null)
+        Log.d("GameVM.", "audio letter $str")
 
     }
 

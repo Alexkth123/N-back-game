@@ -1,5 +1,6 @@
 package mobappdev.example.nback_cimpl.ui.screens
 
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.animateFloatAsState
@@ -53,8 +54,10 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
@@ -83,6 +86,9 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     // 1. Define the Animatable for the flashing color.
     //val flashingColor = remember { animateColorAsState() } // Default color
 
@@ -92,21 +98,238 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
 
 
 
+    if (isLandscape) {
+        Log.d("GameVM.", "landscape")
 
 
-
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackBarHostState) }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackBarHostState) }
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            //.background(Color.Blue)
+                                ,
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
 
-         //   Row () {
+                    ) {
+
+                        Button(
+                            modifier = Modifier
+                                .bounceClick()
+                                .padding(end = 10.dp),
+                            colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
+                            onClick = {
+                                vm.stopGame()
+                                navController.popBackStack()
+
+                            },
+                        )
+                        {
+                            Text(text = "Back")
+                        }
+
+
+
+
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .bounceClick()
+                                .padding(30.dp)
+                                .aspectRatio(1f)
+                                .shadow(4.dp, RoundedCornerShape(30.dp))
+                                .background(
+                                    Color(0xFF007AFF), RoundedCornerShape(30.dp)
+                                )
+                        ) {
+
+                            Button(
+                                onClick = {
+                                    vm.btn_press()
+                                    vm.btnAudio_press()
+                                },
+                                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                                elevation = null,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .bounceClick(),
+                                shape = RoundedCornerShape(10.dp) // This applies the rounded corners to the button itself
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.sound_on),
+                                    contentDescription = "Sound",
+                                    modifier = Modifier
+                                        .height(48.dp)
+                                        .aspectRatio(3f / 2f)
+                                )
+                            }
+
+
+                        }
+
+                    }
+
+
+
+
+
+                    Column(
+                        modifier = Modifier
+                            //.background(Color.Red)
+                            .padding(16.dp)
+                            .width(200.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        //Middle Column
+
+                        ProgressBar(eventValue = vm.showValue.value, arraySize = vm.event_length.value)
+
+
+
+                        // Create 3x3 grid of buttons
+                        for (i in 0 until 3) {
+                            Row(
+                                modifier = Modifier,
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                for (j in 0 until 3) {
+
+                                    val buttonValue = i * 3 + j + 1 // Assign a value from 1 to 9
+
+
+
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .weight(1f) // Give each box an equal weight within the Row
+                                            .padding(4.dp) // Padding for each box
+                                            .aspectRatio(1f)
+                                            .aspectRatio(1f) // This makes the Box a square
+                                            .background(
+                                                if ((gameState.gameType == GameType.Visual || gameState.gameType == GameType.AudioVisual) && gameState.eventValue == buttonValue) Color(
+                                                    0xFFE67E22
+                                                ) else Color(0xFF87CEEB),
+                                                RoundedCornerShape(10.dp)
+                                            )
+
+                                    ) {
+                                        Text(text = ""+buttonValue)
+                                    }
+                                }
+                            }
+
+
+
+                        }
+
+
+                    }
+
+
+
+
+
+                    Column (
+                        modifier = Modifier
+                          //  .background(Color.Blue)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+
+
+
+                        Text(
+                            modifier = Modifier
+                                .padding(top = 10.dp),
+                            text = "Score :${vm.score.value}",
+                            color = Color.LightGray,
+                            fontSize = 44.sp,
+                            textAlign = TextAlign.Center,
+                        )
+
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .bounceClick()
+                                .padding(30.dp)
+                                .aspectRatio(1f)
+                                .shadow(4.dp, RoundedCornerShape(30.dp))
+                                .background(
+                                    Color(0xFF007AFF), RoundedCornerShape(30.dp)
+                                )
+                        ) {
+
+                            Button(
+                                onClick = {
+                                    vm.btn_press()
+                                },
+                                //vm.checkMatch(1)
+
+                                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                                elevation = null,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(10.dp)
+                                    .bounceClick(),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.visual),
+                                    contentDescription = "visual",
+                                    modifier = Modifier.size(48.dp)
+                                )
+
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+    } else {
+        Log.d("GameVM.", " not landscape")
+
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackBarHostState) }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                //   Row () {
 
 
                 Text(
@@ -124,91 +347,107 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
                         .bounceClick()
                         .padding(end = 10.dp),
                     colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
-                    onClick = { navController.popBackStack()
-                              },
+                    onClick = {
+                        vm.stopGame()
+                        navController.popBackStack()
+
+                    },
                 )
                 {
                     Text(text = "Back")
                 }
-         //   }
+                //   }
 
-                Row (){
+                Row() {
 
-                   if( ProgressBar(eventValue =vm.showValue.value , arraySize = vm.event_length.value)){
-                       //navController.popBackStack()
-                       vm.set_gamefinished(true)
-                      // navController.navigate(MainDestinations.HOME_ROUTE)
-                   }
+                    if (ProgressBar(
+                            eventValue = vm.showValue.value,
+                            arraySize = vm.event_length.value
+                        )
+                    ) {
+                        //navController.popBackStack()
+                        vm.set_gamefinished(true)
+                        // navController.navigate(MainDestinations.HOME_ROUTE)
+                    }
                 }
-            // Todo: You'll probably want to change this "BOX" part of the composable
-            Box(
-                modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp), // Padding for the entire screen
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                // Todo: You'll probably want to change this "BOX" part of the composable
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
                 ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp), // Padding for the entire screen
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
 
-                    Spacer(modifier = Modifier.height(32.dp)) // Adds a space between the text and the grid
-
-
-
-                    // Create 3x3 grid of buttons
-                    for (i in 0 until 3) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            for (j in 0 until 3) {
-
-                                val buttonValue = i * 3 + j + 1 // Assign a value from 1 to 9
-                                // 3. Set up the flashing effect based on the gameState.
+                        Spacer(modifier = Modifier.height(32.dp)) // Adds a space between the text and the grid
 
 
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(4.dp) // Padding for each box, adjust as needed
-                                        .aspectRatio(1f) // This makes the Box a square
-                                        .shadow(
-                                            4.dp,
-                                            RoundedCornerShape(10.dp)
-                                        ) // This adds a shadow with rounded corners
-                                        .background(Color(0xFF87CEEB), RoundedCornerShape(10.dp))
-                                        .buttonflash(gameState, buttonValue)
-                                ) {
-                                    Button(
-                                        onClick = {
-                                                  /* TODO: Implement your onClick action here */
-                                        },
-                                        colors = ButtonDefaults.buttonColors(Color(buttonValue)),
-                                        elevation = null,
+                        // Create 3x3 grid of buttons
+                        for (i in 0 until 3) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                for (j in 0 until 3) {
+
+                                    val buttonValue = i * 3 + j + 1 // Assign a value from 1 to 9
+
+
+
+                                    Box(
+                                        contentAlignment = Alignment.Center,
                                         modifier = Modifier
-                                            .fillMaxSize()
-                                            //.bounceClick()
-                                            .padding(),
-                                        shape = RoundedCornerShape(10.dp) // This applies the rounded corners to the button itself
+                                            .weight(1f)
+                                            .padding(4.dp) // Padding for each box, adjust as needed
+                                            .aspectRatio(1f) // This makes the Box a square
+                                            .shadow(
+                                                4.dp,
+                                                RoundedCornerShape(10.dp)
+                                            )
+
+                                            .background(
+                                                if ((gameState.gameType == GameType.Visual || gameState.gameType == GameType.AudioVisual) && gameState.eventValue == buttonValue) Color(
+                                                    0xFFE67E22
+                                                ) else Color(0xFF87CEEB),
+                                                RoundedCornerShape(10.dp)
+                                            )
+
+
+                                        // .buttonflash(gameState, buttonValue)
+
                                     ) {
-                                        // The button content goes here
-                                        Text(text = ""+buttonValue)
+                                        Button(
+                                            onClick = {
+                                                /* TODO: Implement your onClick action here */
+                                            },
+                                            colors = ButtonDefaults.buttonColors(Color(buttonValue)),
+                                            elevation = null,
+                                            modifier = Modifier
+                                                .fillMaxSize()
+
+                                                //.bounceClick()
+                                                .padding(),
+                                            shape = RoundedCornerShape(10.dp)
+                                        ) {
+                                            // The button content goes here
+                                            Text(text = "" + buttonValue)
+                                        }
                                     }
                                 }
                             }
-                        }
-                        if (i < 2) { // Add spacing between rows, except after the last one
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
+                            if (i < 2) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
 
 
+                        }
                     }
                 }
-            }
 
 
                 Row(
@@ -216,41 +455,43 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
 
-                        Box(
-                            contentAlignment = Alignment.Center,
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .bounceClick()
+                            .weight(1f)
+                            .padding(30.dp)
+                            .aspectRatio(1f)
+                            .shadow(
+                                4.dp,
+                                RoundedCornerShape(30.dp)
+                            )
+                            .background(
+                                Color(0xFF007AFF),
+                                RoundedCornerShape(30.dp)
+                            )
+                    ) {
+                        Button(
+                            onClick = {
+                                vm.btn_press()
+                                vm.btnAudio_press()
+                            },
+                            colors = ButtonDefaults.buttonColors(Color.Transparent),
+                            elevation = null,
                             modifier = Modifier
-                                .bounceClick()
-                                .weight(1f)
-                                .padding(30.dp)
-                                .aspectRatio(1f) // This makes the Box a square
-                                .shadow(
-                                    4.dp,
-                                    RoundedCornerShape(30.dp)
-                                ) // This adds a shadow with rounded corners
-                                .background(
-                                    Color(0xFF007AFF),
-                                    RoundedCornerShape(30.dp)
-                                ) // This sets the rounded corner background to white
+                                .fillMaxSize()
+                                .bounceClick(),
+                            shape = RoundedCornerShape(10.dp) // This applies the rounded corners to the button itself
                         ) {
-                            Button(
-                                onClick = { vm.btn_press()
-                                          vm.btnAudio_press()},
-                                colors = ButtonDefaults.buttonColors(Color.Transparent),
-                                elevation = null,
+                            Icon(
+                                painter = painterResource(id = R.drawable.sound_on),
+                                contentDescription = "Sound",
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .bounceClick(),
-                                shape = RoundedCornerShape(10.dp) // This applies the rounded corners to the button itself
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.sound_on),
-                                    contentDescription = "Sound",
-                                    modifier = Modifier
-                                        .height(48.dp)
-                                        .aspectRatio(3f / 2f)
-                                )
-                            }
+                                    .height(48.dp)
+                                    .aspectRatio(3f / 2f)
+                            )
                         }
+                    }
 
 
                     Box(
@@ -259,34 +500,35 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
                             .bounceClick()
                             .weight(1f)
                             .padding(30.dp)
-                            .aspectRatio(1f) // This makes the Box a square
+                            .aspectRatio(1f)
                             .shadow(
                                 4.dp,
                                 RoundedCornerShape(30.dp)
-                            ) // This adds a shadow with rounded corners
+                            )
                             .background(
                                 Color(0xFF007AFF), RoundedCornerShape(30.dp)
-                            ) // This sets the rounded corner background to white
+                            )
                     ) {
 
-                            Button(
-                                onClick = {
-                                vm.btn_press()},
-                                //vm.checkMatch(1)
+                        Button(
+                            onClick = {
+                                vm.btn_press()
+                            },
+                            //vm.checkMatch(1)
 
-                                colors = ButtonDefaults.buttonColors(Color.Transparent),
-                                elevation = null,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(10.dp)
-                                    .bounceClick(),
-                                shape = RoundedCornerShape(10.dp) // This applies the rounded corners to the button itself
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.visual),
-                                    contentDescription = "visual",
-                                    modifier = Modifier.size(48.dp)
-                                )
+                            colors = ButtonDefaults.buttonColors(Color.Transparent),
+                            elevation = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp)
+                                .bounceClick(),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.visual),
+                                contentDescription = "visual",
+                                modifier = Modifier.size(48.dp)
+                            )
 
 
                         }
@@ -295,6 +537,9 @@ fun PlayScreen(vm: GameViewModel,navController: NavController) {
             }
         }
     }
+
+
+}
 
 
 

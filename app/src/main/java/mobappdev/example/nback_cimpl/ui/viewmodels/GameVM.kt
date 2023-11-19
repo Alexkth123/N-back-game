@@ -54,7 +54,7 @@ interface GameViewModel {
     val gameTypeIndex: StateFlow<Int>
     val gameTypeArray: Array<GameType>
 
-
+    fun stopGame()
     fun incrementGameType()
     fun decrementGameType()
     fun getCurrentGameType(): GameType
@@ -194,7 +194,7 @@ class GameVM(
     override fun startGame() {
         _showValue.value=0
         set_gamefinished(false)
-        job?.cancel()  // Cancel any existing game loop
+       // job?.cancel()  // Cancel any existing game loop
         Log.d("GameVM", "Game starts")
         audioPlayer = AudioPlayer(context)
         audioPlayer.init()
@@ -317,9 +317,12 @@ class GameVM(
     private suspend fun runAudioGame(_events_audio: Array<Int>) {
         delay(3000)
         _showValue.value=0
-        for (value in events) {
+
+        for (value in _events_audio) {
             _showValue.value+=1
             _gameState.value = _gameState.value.copy(eventValue = value)
+
+            audioPlayer.play_audio(audioPlayer.int_to_asci(value))
             gotPoint=false
             Log.d("GameVM", "_showValue.value: ${_showValue.value}")
             //checkMatch(value)
@@ -341,10 +344,18 @@ class GameVM(
         for (value in events) {
             _showValue.value+=1
             _gameState.value = _gameState.value.copy(eventValue = value)
-            gotPoint=false
+
+            ////
+            delay(1000)
+            _gameState.value = _gameState.value.copy(eventValue = -1)
+            /////
+
+
+
             Log.d("GameVM", "_showValue.value: ${_showValue.value}")
 
             delay(eventInterval.value)
+            gotPoint=false
         }
         set_gamefinished(true) // unused varible
         _showValue.value=0
@@ -353,7 +364,11 @@ class GameVM(
 
 
          //Set game finished to false again
+    }
 
+
+     override fun stopGame(){
+        job?.cancel()
     }
 
     private suspend fun runAudioVisualGame(events: Array<Int>,_events_audio: Array<Int>){
@@ -361,9 +376,12 @@ class GameVM(
         _showValue.value=0
 
 
-        for (value in events) {
+        for (i in 0 until events.size) {
             _showValue.value+=1
-            _gameState.value = _gameState.value.copy(eventValue = value)
+            _gameState.value = _gameState.value.copy(eventValue = events[i])
+
+            audioPlayer.play_audio(audioPlayer.int_to_asci(_events_audio[i]))
+
             gotPoint=false
             Log.d("GameVM", "_showValue.value: ${_showValue.value}")
 
@@ -451,6 +469,10 @@ class FakeVM: GameViewModel{
         get() = TODO("Not yet implemented")
     override val gameTypeArray: Array<GameType>
         get() = TODO("Not yet implemented")
+
+    override fun stopGame() {
+        TODO("Not yet implemented")
+    }
 
     override fun incrementGameType() {
         TODO("Not yet implemented")
