@@ -96,8 +96,8 @@ fun SettingsScreen(
 
 
                     Column(
-                        modifier = Modifier.background(Color.Blue)
-                            .width(50.dp)
+                        modifier = Modifier//.background(Color.Blue)
+                            .width(100.dp)
                             .padding(16.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -113,13 +113,65 @@ fun SettingsScreen(
                             colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
                             modifier = Modifier
                                 .bounceClick()
-                                //.weight(1f)
+                                .padding(5.dp)
+                                .weight(1f)
                                 .aspectRatio(1f) // This makes the Box a square
-                                .shadow(4.dp, RoundedCornerShape(55.dp)) // This adds a shadow with rounded corners ,
+
 
                             ) {
-                            Text(text = "+", fontSize = 12.sp, )
+                            Text(text = "+" )
                         }
+
+
+                        Button(onClick = {
+                            vm.incrementGameType()
+
+                        },
+                            colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
+                            modifier = Modifier
+                                .bounceClick()
+                                .padding(5.dp)
+                                .weight(1f)
+                                 // Padding for each box, adjust as needed
+                                .aspectRatio(1f) // This makes the Box a square
+
+                            ) {
+                            Text(text = "+" )
+                        }
+
+
+
+
+
+                        Button(onClick = {vm.eventInterval_plus()},
+                            colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
+                            modifier = Modifier
+                                .bounceClick()
+                                .weight(1f)
+                                .padding(5.dp) // Padding for each box, adjust as needed
+                                .aspectRatio(1f) // This makes the Box a square
+
+
+
+                            ) {
+                            Text(text = "+" )
+                            }
+
+
+                        Button(onClick = {vm.event_length_plus()},
+                            colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
+                            modifier = Modifier
+                                .bounceClick()
+                                .weight(1f)
+                                .padding(5.dp) // Padding for each box, adjust as needed
+                                .aspectRatio(1f) // This makes the Box a square
+
+
+
+                        ) {
+                            Text(text = "+")
+                        }
+
 
 
 
@@ -129,20 +181,48 @@ fun SettingsScreen(
 
                     Column(
                         modifier = Modifier
-                            .background(Color.Red)
+                            //.background(Color.Red)
                             .width(200.dp)
                             .padding(16.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         //Middle Column
-                        Text(text = "N-Back : $nback   ") /// maybe something with the len of the string
+                        Text(text = "N-Back : $nback",Modifier.padding(10.dp)) /// maybe something with the len of the string
+
+                        Text(text = "Mode : $currentGameType",Modifier.padding(10.dp)) /// maybe something with the len of the string
+
+                        Text(text = "Event time: "+ (eventTime/1000).toString()+"s",Modifier.padding(10.dp) )
+
+                        Text(text = "Event Length: "+ eventLen,Modifier.padding(10.dp))
+
+
+                        Button(modifier = Modifier.bounceClick(),
+                            colors = ButtonDefaults.buttonColors(Color(0xFF007AFF)),
+                            onClick = {
+
+                                vm.setGameType(currentGameType)
+                                scope.launch {
+                                    snackBarHostState.showSnackbar(message = "Settings Saved!!!")
+                                    //navController.navigate(MainDestinations.HOME_ROUTE)
+                                }
+                                Log.d("GameVM", "Values saved: ${vm.event_length.value}")
+                                Log.d("GameVM", "Values saved: ${vm.eventInterval.value}")
+                                Log.d("GameVM", "Values saved: ${vm.gameState.value}")
+                                navController.popBackStack()
+                            }
+                        ) {
+                            Text(text = "Save")
+                        }
+
+
+
 
                     }
                     Column(
                         modifier = Modifier
-                            .background(Color.Blue)
-                            .width(50.dp)
+                            //.background(Color.Blue)
+                            .width(100.dp)
                             .padding(16.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -155,16 +235,65 @@ fun SettingsScreen(
                             colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
                             modifier = Modifier
                                 .bounceClick()
-                                //.weight(1f)
+                                .padding(5.dp)
+                                .weight(1f)
                                 .aspectRatio(1f) // This makes the Box a square
-                                .shadow(
-                                    4.dp,
-                                    RoundedCornerShape(55.dp)
-                                ) // This adds a shadow with rounded corners
+
                                 )
+                        {
+                            Text(text = "-", Modifier.padding(10.dp))
+                        }
+
+
+                        Button(onClick = {
+                            vm.decrementGameType()
+                        },
+                            colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
+                            modifier = Modifier
+                                .bounceClick()
+                                .padding(5.dp)
+                                .weight(1f)
+                                .aspectRatio(1f) // This makes the Box a square
+
+                        )
                         {
                             Text(text = "-")
                         }
+
+                        Button(onClick = {vm.eventInterval_minus()},
+                            colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
+                            modifier = Modifier
+                                .bounceClick()
+                                .weight(1f)
+                                .padding(5.dp) // Padding for each box, adjust as needed
+                                .aspectRatio(1f) // This makes the Box a square
+
+                        )
+                        {
+                            Text(text = "-")
+                        }
+
+
+
+
+
+                        Button(onClick = {vm.event_length_minus()},
+                            colors = ButtonDefaults.buttonColors(Color(0xFF87CEEB)),
+                            modifier = Modifier
+                                .bounceClick()
+                                .weight(1f)
+                                .padding(5.dp)
+                                .aspectRatio(1f)
+
+                              )
+                        {
+                            Text(text = "-")
+                        }
+
+
+
+
+
                     }
                 }
             }
