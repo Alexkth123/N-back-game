@@ -222,7 +222,7 @@ class GameVM(
 
     override fun checkMatch(int: Int) {
         //var lastEventValue = int
-        
+
         if (_btnState.value && showValue.value >= nBack.value && showValue.value < events.size && events[showValue.value] == events[showValue.value - nBack.value]){
             _score.value += 1
             gotPoint = true
